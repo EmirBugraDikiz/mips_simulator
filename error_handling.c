@@ -13,6 +13,9 @@ struct app_context_t{
 
 };
 
+
+
+
 static FILE* error_sink(const app_context* app_context_param){                                                                  // this function decides where error logs will go.
     
     return (app_context_param)? app_context_param->error_log : stderr;
@@ -27,7 +30,7 @@ void app_error(app_context* app_context_param, const char* message, const char* 
 }
 
 
-void app_perror(app_context* app_context_param, const char* message, const char* file, int line, const char* func){             // use this function for logging erros that set errno.
+void app_perror(app_context* app_context_param, const char* message, const char* file, int line, const char* func){             // use this function for logging errors that set errno.
 
     int e = errno;
     FILE* out = error_sink(app_context_param);
@@ -40,7 +43,7 @@ app_context* create_app_context(const char* error_log_path_param){              
 
     if(!error_log_path_param) {
 
-        APP_ERROR(NULL, "invalid argument.");
+        APP_ERROR(NULL, "INVALID ARGUMENT");
         return NULL;
     }
     
@@ -48,7 +51,7 @@ app_context* create_app_context(const char* error_log_path_param){              
 
     if(!new_app_context) {
 
-        APP_PERROR(NULL, "Allocation failed.");
+        APP_PERROR(NULL, "APP CONTEXT STRUCT: ALLOCATION FAILED");
         return NULL;
     }
 
@@ -56,7 +59,7 @@ app_context* create_app_context(const char* error_log_path_param){              
 
     if(!new_app_context->error_log_path){
 
-        APP_PERROR(NULL, "Allocation failed");
+        APP_ERROR(NULL, "APP CONTEXT STRUCT MEMBER NOT ALLOCATED: STRDUP FAILED.");
         free(new_app_context);
         return NULL;
 
@@ -81,16 +84,21 @@ app_context* create_app_context(const char* error_log_path_param){              
 
 
 
-int destroy_app_context(app_context* app_context_param){                                                                        // deallocate app_context_t instance and close associated file pointer. 
+Err destroy_app_context(app_context* app_context_param){                                                                        // deallocate app_context_t instance and close associated file pointer. 
 
-    if(!app_context_param) return -1;    
+    if(!app_context_param) {
 
+        APP_ERROR(app_context_param, "invalid argument.");
+        return ERR_INVALID_ARGUMENT;
+    }    
 
+    
+    fclose(app_context_param->error_log);
     free(app_context_param->error_log_path);
     free(app_context_param);
-    fclose(app_context_param->error_log);
+    
 
-    return 0;
+    return ERR_OK;
 }
 
 
