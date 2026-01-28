@@ -50,7 +50,8 @@ typedef enum{
     ST_DIR_DATA,
     ST_DIR_WORD,
     ST_INSTR,
-    ST_LABEL
+    ST_LABEL,
+    ST_EMPTY
 
 }StatementKind;
 
