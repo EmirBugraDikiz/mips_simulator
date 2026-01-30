@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 
-Err init(IR *ir, app_context *app_context_param){
+Err ir_init(IR *ir, app_context *app_context_param){
 
     if(!ir) {
 

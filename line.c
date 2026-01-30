@@ -276,9 +276,9 @@ Err destroy_input_program(app_context* app_context_param, input_program* input_p
 
 Err print_lines(app_context* app_context_param, char** lines, size_t n){
 
-    if(!lines || !(*lines)){
+    if(!lines){
 
-        APP_ERROR(app_context_param, "YOU CANNOT PRINT LINE(S): YOUR ARGUMENT INTO THIS FUNCTION IS INVALID.");
+        APP_ERROR(app_context_param, "YOU CANNOT PRINT LINE(S): THERE IS/ARE NO LINE/S TO PRINT.");
         return ERR_UB;
 
     }
