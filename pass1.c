@@ -49,11 +49,11 @@ Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **l
 
         }
 
-        char label[64];
+        
         int has_label = 0;
         Statement statement;
 
-        e = parse_line(app_context_param, &tv, buf, (int)ith_line + 1, label, &has_label, &statement);
+        e = parse_line(app_context_param, &tv, buf, (int)ith_line + 1, &has_label, &statement);
         tokenvec_free(&tv, app_context_param);
 
 
@@ -69,7 +69,7 @@ Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **l
 
         }
 
-        if(has_label){
+        if(statement.kind == ST_LABEL){
 
             if(state.section == SEC_NONE){
 
@@ -87,7 +87,7 @@ Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **l
             uint32_t addr = base + pc;
 
 
-            e = symtab_add(out_symtab, label, addr, app_context_param);
+            e = symtab_add(out_symtab, statement.as.label.name, addr, app_context_param);
 
             if(e != ERR_OK){
 
@@ -99,19 +99,12 @@ Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **l
 
             }
 
-            // optional: for label we can hold it as a statement for debug kind of things.
-
-            Statement lab = {0};
-            lab.line_no = ith_line + 1;
-            lab.kind = ST_LABEL;
-            strncpy(lab.as.label.name, label, sizeof(lab.as.label.name) - 1);
-            lab.as.label.name[sizeof(lab.as.label.name) - 1] = '\0';
-
-            e = ir_push(out_ir, &lab, app_context_param);
+        
+            e = ir_push(out_ir, &statement, app_context_param);
 
             if(e != ERR_OK){
 
-                stmt_free_heap_parts(&lab);
+                stmt_free_heap_parts(&statement);
                 ir_free(out_ir, app_context_param);
                 symtab_free(out_symtab, app_context_param);
 

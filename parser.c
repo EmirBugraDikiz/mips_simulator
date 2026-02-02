@@ -237,12 +237,11 @@ static int tok_is_dot(const Token *t, const char *s){
 
 }
 
-Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *source_line, int line_no, char out_label[64], int *out_has_label, Statement *out_statement){
+Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *source_line, int line_no, int *out_has_label, Statement *out_statement){
 
     if(!tv || !out_statement || !out_has_label) return ERR_INVALID_ARGUMENT;
 
     *out_has_label = 0;
-    out_label[0] = '\0';
 
 
     memset(out_statement, 0, sizeof(*out_statement));
@@ -257,21 +256,18 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
 
     }
 
-    // LABEL: IDENT ':'
+    // LABEL: IDENT ':'           this mips simulator don't accept any kind of statement after a label statement. That means any kind of thing after label will be discard. 
 
-    if(tv->n >= 2 && tv->v[0].kind == TOK_IDENT && tv->v[1].kind == TOK_COLON){
-
-        strncpy(out_label, tv->v[0].lexeme, 63);
-        out_label[63] = '\0';
+    if(tv->n == 2 && tv->v[0].kind == TOK_IDENT && tv->v[1].kind == TOK_COLON){
 
         *out_has_label = 1;
         pos = 2;
-        if(pos >= tv->n){
+        out_statement->kind = ST_LABEL;
+        strncpy(out_statement->as.label.name, tv->v[0].lexeme, sizeof(out_statement->as.label.name));
+        out_statement->as.label.name[sizeof(out_statement->as.label.name) - 1] = '\0';
 
-            out_statement->kind = ST_EMPTY;
-            return ERR_OK;
+        return ERR_OK;
 
-        }
     }
 
     // directive?
