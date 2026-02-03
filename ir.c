@@ -60,7 +60,7 @@ Err ir_push(IR *ir, const Statement *s, app_context *app_context_param){
     return ERR_OK;
 }
 
-static void operand_free(Operand *op){
+void operand_free(Operand *op){
 
     if(!op) return;
 
@@ -88,9 +88,29 @@ void stmt_free_heap_parts(Statement *s){
 
     else if(s->kind == ST_INSTR){
 
-        for(size_t i = 0; i < s->as.instr.op_count; i++){
+        for(size_t i = 0; i < (size_t)s->as.instr.op_count; i++){
 
             operand_free(&s->as.instr.ops[i]);
+
+        }
+
+    }
+
+
+    else if(s->kind == ST_LABEL_PLUS_DIR_WORD){
+
+        free(s->as.label_plus_dir_word.dir_word.values);
+        s->as.label_plus_dir_word.dir_word.values = NULL;
+        s->as.label_plus_dir_word.dir_word.n = 0;
+
+    }
+
+
+    else if(s->kind == ST_LABEL_PLUS_INSTR){
+
+        for(size_t i = 0; i < (size_t)s->as.label_plus_instr.instr.op_count; i++){
+
+            operand_free(&s->as.label_plus_instr.instr.ops[i]);
 
         }
 

@@ -51,7 +51,9 @@ typedef enum{
     ST_DIR_WORD,
     ST_INSTR,
     ST_LABEL,
-    ST_EMPTY
+    ST_EMPTY,
+    ST_LABEL_PLUS_INSTR,
+    ST_LABEL_PLUS_DIR_WORD
 
 }StatementKind;
 
@@ -86,6 +88,32 @@ typedef struct{
 
         }label;
 
+        struct{
+
+            char name[64];
+            struct{
+
+                char mnemonic[16];
+                Operand ops[3];
+                int op_count;
+
+            }instr;
+
+        }label_plus_instr;
+
+
+        struct{
+
+            char name[64];
+            struct{
+
+                int32_t *values;
+                size_t n;
+
+            }dir_word;
+
+        }label_plus_dir_word;
+
     }as;
 
 }Statement;
@@ -104,6 +132,7 @@ Err ir_init(IR *ir, app_context *app_context_param);
 Err ir_push(IR *ir, const Statement *s, app_context *app_context_param);
 Err ir_free(IR *ir, app_context *app_context_param);
 
+void operand_free(Operand *op);
 void stmt_free_heap_parts(Statement *s);
 
 #endif

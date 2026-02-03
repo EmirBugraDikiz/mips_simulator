@@ -243,30 +243,45 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
 
     *out_has_label = 0;
 
-
     memset(out_statement, 0, sizeof(*out_statement));
     out_statement->line_no = line_no;
 
     size_t pos = 0;
 
-    if(tv->n == 0){
+    int has_label_prefix = 0;
+    char label_name[64] = {0};
 
-        out_statement->kind = ST_EMPTY;
-        return ERR_OK;
+    if(tv->n >= 2 && tv->v[0].kind == TOK_IDENT && tv->v[1].kind == TOK_COLON){
 
-    }
-
-    // LABEL: IDENT ':'           this mips simulator don't accept any kind of statement after a label statement. That means any kind of thing after label will be discard. 
-
-    if(tv->n == 2 && tv->v[0].kind == TOK_IDENT && tv->v[1].kind == TOK_COLON){
-
-        *out_has_label = 1;
+        has_label_prefix = 1;
+        strncpy(label_name, tv->v[0].lexeme, sizeof(label_name) - 1);
+        label_name[sizeof(label_name) - 1] = '\0';
         pos = 2;
-        out_statement->kind = ST_LABEL;
-        strncpy(out_statement->as.label.name, tv->v[0].lexeme, sizeof(out_statement->as.label.name));
-        out_statement->as.label.name[sizeof(out_statement->as.label.name) - 1] = '\0';
 
-        return ERR_OK;
+        if(pos < tv->n && tv->v[pos].kind == TOK_COLON){
+
+            report_syntax(app_context_param, line_no, (int)tv->v[pos].column_no, "double colon is invalid.", source_line);
+            return ERR_SYNTAX;
+
+        }
+
+
+        if(pos >= tv->n){
+
+            *out_has_label = 1;
+            out_statement->kind = ST_LABEL;
+            strncpy(out_statement->as.label.name, label_name, sizeof(out_statement->as.label.name) - 1);
+            out_statement->as.label.name[sizeof(out_statement->as.label.name) - 1] = '\0';
+            return ERR_OK;
+
+        }
+
+        if(tv->v[pos].kind != TOK_IDENT && tv->v[pos].kind != TOK_DOT){
+
+            report_syntax(app_context_param, line_no, (int)tv->v[pos].column_no, "expected instruction or .word after label.", source_line);
+            return ERR_SYNTAX;
+        }
+
 
     }
 
@@ -276,12 +291,26 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
 
         if(tok_is_dot(&tv->v[pos], ".text")){
 
+            if(has_label_prefix){
+
+                report_syntax(app_context_param, line_no, (int)tv->v[pos].column_no, "label prefix allowed only for instruction or .word", source_line);
+                return ERR_SYNTAX;
+
+            }
+
             out_statement->kind = ST_DIR_TEXT;
             return ERR_OK;
 
         }
 
         if(tok_is_dot(&tv->v[pos], ".data")){
+
+            if(has_label_prefix){
+
+                report_syntax(app_context_param, line_no, (int)tv->v[pos].column_no, "label prefix allowed only for instruction or .word", source_line);
+                return ERR_SYNTAX;
+
+            }
 
             out_statement->kind = ST_DIR_DATA;
             return ERR_OK;
@@ -377,6 +406,19 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
 
             }
 
+            if(has_label_prefix){
+
+                out_statement->kind = ST_LABEL_PLUS_DIR_WORD;
+                strncpy(out_statement->as.label_plus_dir_word.name, label_name, sizeof(out_statement->as.label_plus_dir_word.name) - 1);
+                out_statement->as.label_plus_dir_word.name[sizeof(out_statement->as.label_plus_dir_word.name) - 1] = '\0';
+                out_statement->as.label_plus_dir_word.dir_word.values = values;
+                out_statement->as.label_plus_dir_word.dir_word.n = n;
+
+                return ERR_OK;
+
+
+            }
+
             out_statement->kind = ST_DIR_WORD;
             out_statement->as.dir_word.values = values;
             out_statement->as.dir_word.n = n;
@@ -395,17 +437,18 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
 
     if(pos < tv->n && tv->v[pos].kind == TOK_IDENT){
 
-        out_statement->kind = ST_INSTR;
-        strncpy(out_statement->as.instr.mnemonic, tv->v[pos].lexeme, sizeof(out_statement->as.instr.mnemonic) - 1);
-        out_statement->as.instr.mnemonic[sizeof(out_statement->as.instr.mnemonic) - 1] = '\0';
-        
-        pos++;
-
+      
+        char mnemonic[16] = {0};
+        Operand ops[3] = {0};
         int operand_count = 0;
+
+        strncpy(mnemonic, tv->v[pos].lexeme, sizeof(mnemonic) - 1);
+        mnemonic[sizeof(mnemonic) - 1] = '\0';
+        pos++;
 
         while(pos < tv->n){
 
-            if(tv->v[pos].kind == TOK_COMMA) {
+            if(tv->v[pos].kind == TOK_COMMA){
 
                 pos++;
                 continue;
@@ -414,25 +457,83 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
 
             if(operand_count >= 3){
 
-                report_syntax(app_context_param, tv->v[pos].line_no, tv->v[pos].column_no, "too many operands (mips simulator does not support more than 3 operand with an instruction)", source_line);
+                report_syntax(app_context_param, (int)tv->v[pos].line_no, (int)tv->v[pos].column_no, "too many operands (max 3).", source_line);
+                for(size_t i = 0; i < operand_count; i++){
+
+                    operand_free(&ops[i]);
+
+                }
                 return ERR_SYNTAX;
 
             }
 
+
             Operand operand = {0};
             Err e = parse_operand(app_context_param, tv, &pos, &operand, source_line);
-            if(e != ERR_OK) return e;
+            if(e != ERR_OK){
 
-            out_statement->as.instr.ops[operand_count++] = operand;
+                for(size_t i = 0; i < operand_count; i++){
+
+                    operand_free(&ops[i]);
+
+                }
+
+                return e;
+            }
+
+            ops[operand_count++] = operand;
+        }
+
+
+        if(has_label_prefix){
+
+            out_statement->kind = ST_LABEL_PLUS_INSTR;
+
+            strncpy(out_statement->as.label_plus_instr.name, label_name, sizeof(out_statement->as.label_plus_instr.name) - 1);
+            out_statement->as.label_plus_instr.name[sizeof(out_statement->as.label_plus_instr.name) - 1] = '\0';
+
+            strncpy(out_statement->as.label_plus_instr.instr.mnemonic, mnemonic, sizeof(out_statement->as.label_plus_instr.instr.mnemonic) - 1);
+            out_statement->as.label_plus_instr.instr.mnemonic[sizeof(out_statement->as.label_plus_instr.instr.mnemonic) - 1] = '\0';
+
+            out_statement->as.label_plus_instr.instr.op_count = operand_count;
+
+            for(size_t i = 0; i < operand_count; i++){
+
+                out_statement->as.label_plus_instr.instr.ops[i] = ops[i];
+
+            }
+
+            *out_has_label = 1;
+            
+            return ERR_OK;
 
         }
 
-        out_statement->as.instr.op_count = operand_count;
-        return ERR_OK;
+        else{
+
+            out_statement->kind = ST_INSTR;
+
+            strncpy(out_statement->as.instr.mnemonic, mnemonic, sizeof(out_statement->as.instr.mnemonic) - 1);
+            out_statement->as.instr.mnemonic[sizeof(out_statement->as.instr.mnemonic) - 1] = '\0';
+
+            out_statement->as.instr.op_count = operand_count;
+
+            for(size_t i = 0; i < operand_count; i++){
+
+                out_statement->as.instr.ops[i] = ops[i];
+
+            }
+
+            return ERR_OK;
+            
+        }
+        
 
     }
 
-    report_syntax(app_context_param, tv->v[pos].line_no, tv->v[pos].column_no, "unrecognized statement", source_line);
+    int col = (pos < tv->n) ? (int)tv->v[pos].column_no : (tv->n ? (int)tv->v[tv->n - 1].column_no : 1);
+
+    report_syntax(app_context_param, line_no, col, "unrecognized statement", source_line);
     return ERR_SYNTAX;
 
 }
