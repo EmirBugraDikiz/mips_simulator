@@ -2,7 +2,6 @@
 #define SYMTAB_H
 
 #include <stdint.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include "error_handling.h"
 
