@@ -41,7 +41,7 @@ void tokenvec_free(TokenVec *tv, app_context *app_context_param){
 
 static Err tokenvec_grow(TokenVec *tv, app_context *app_context_param){
 
-    size_t new_cap = (tv->cap = 0)? 64 : tv->cap * 2;
+    size_t new_cap = (tv->cap == 0)? 64 : tv->cap * 2;
 
     Token *p = realloc(tv->v,sizeof(*p) * new_cap);
 
