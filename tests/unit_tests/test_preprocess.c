@@ -3,7 +3,6 @@
 #include <string.h>
 #include "../../preprocess.h"
 
-#define ARR_LEN(a) (sizeof(a)/sizeof((a)[0]))
 
 typedef struct{
 
@@ -30,8 +29,8 @@ static void run_preprocess_case(const char *suite_name, const PreprocessCase *te
     strncpy(temp_buf, test_case->input, sizeof(temp_buf) - 1);
     temp_buf[sizeof(temp_buf) - 1] = '\0';
 
-    trim_inplace(temp_buf);
     strip_comment(temp_buf);
+    trim_inplace(temp_buf);
 
     if(strcmp(temp_buf, test_case->expected_line) != 0){
 

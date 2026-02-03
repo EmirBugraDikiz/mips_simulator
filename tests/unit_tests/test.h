@@ -8,6 +8,7 @@
 #include "../../lexer.h"
 
 
+#define ARR_LEN(a) (sizeof(a)/sizeof((a)[0]))
 
 
 // INLINE TEST HELPER
@@ -59,5 +60,7 @@ static inline void test_fail(const char *file, int line, const char *expression,
 void test_lex_all_tables(app_context *app_context_param);
 
 void test_preprocess_all_tables();
+
+void test_parser_tables(app_context *app_context_param);
 
 #endif

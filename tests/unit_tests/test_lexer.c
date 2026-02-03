@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ARR_LEN(a) (sizeof(a)/sizeof((a)[0]))
 
 typedef struct token_expression_t{
 
