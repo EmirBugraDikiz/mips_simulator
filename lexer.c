@@ -112,7 +112,7 @@ Err lex_line(const char *line, int line_no, TokenVec *out, app_context *app_cont
 
         // single tokens
 
-        if(c == ':') {t.kind = TOK_COLON; strcpy(t.lexeme, ":"); i++; return tokenvec_push(out, &t, app_context_param);}
+        if(c == ':') {t.kind = TOK_COLON; strcpy(t.lexeme, ":"); i++; e = tokenvec_push(out, &t, app_context_param); if (e != ERR_OK) return e; continue;}
         if(c == ',') {t.kind = TOK_COMMA; strcpy(t.lexeme, ","); i++; e = tokenvec_push(out, &t, app_context_param); if(e != ERR_OK) return e; continue;}
         if(c == '(') {t.kind = TOK_LPAREN; strcpy(t.lexeme, "("); i++; e = tokenvec_push(out, &t, app_context_param); if(e != ERR_OK) return e; continue;}
         if(c == ')') {t.kind = TOK_RPAREN; strcpy(t.lexeme, ")"); i++; e = tokenvec_push(out, &t, app_context_param); if(e != ERR_OK) return e; continue;}
