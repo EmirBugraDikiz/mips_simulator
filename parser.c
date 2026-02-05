@@ -8,51 +8,8 @@
 #include <stdint.h>
 #include "lexer.h"
 #include "ir.h"
-
-#define REG_FILE_NUMS 32
-#define REG_FILE_SIZE REG_FILE_NUMS
-
-typedef struct{
-
-    const char *reg_name;
-    int represent_num_of_reg;
-    int32_t reg_value;
-
-}reg;
-
-reg reg_file[REG_FILE_SIZE] = {{"$zero",  0,   0x00000000},
-                               {"$at",    1,   0x00000000},
-                               {"$v0",    2,   0x00000000},
-                               {"$v1",    3,   0x00000000},
-                               {"$a0",    4,   0x00000000},
-                               {"$a1",    5,   0x00000000},
-                               {"$a2",    6,   0x00000000},
-                               {"$a3",    7,   0x00000000},
-                               {"$t0",    8,   0x00000000},
-                               {"$t1",    9,   0x00000000},
-                               {"$t2",    10,  0x00000000},
-                               {"$t3",    11,  0x00000000},
-                               {"$t4",    12,  0x00000000},
-                               {"$t5",    13,  0x00000000},
-                               {"$t6",    14,  0x00000000},
-                               {"$t7",    15,  0x00000000},
-                               {"$s0",    16,  0x00000000},
-                               {"$s1",    17,  0x00000000},
-                               {"$s2",    18,  0x00000000},
-                               {"$s3",    19,  0x00000000},
-                               {"$s4",    20,  0x00000000},
-                               {"$s5",    21,  0x00000000},
-                               {"$s6",    22,  0x00000000},
-                               {"$s7",    23,  0x00000000},
-                               {"$t8",    24,  0x00000000},
-                               {"$t9",    25,  0x00000000},
-                               {"$k0",    26,  0x00000000},
-                               {"$k1",    27,  0x00000000},
-                               {"$gp",    28,  0x00000000},
-                               {"$sp",    29,  0x00000000},
-                               {"$fp",    30,  0x00000000},
-                               {"$ra",    31,  0x00000000}};
-
+#include "regmap.h"
+#include "isa_mips.h"
 
 
 
@@ -75,9 +32,9 @@ static void report_syntax(app_context *app_context_param, int line_no, int colum
 }
 
 
-static int parse_reg_name(const char *lex, reg* reg_file){
+static int parse_reg_name(const char *lex){
 
-    if(!lex || lex[0] != '$' || !reg_file) return -1;
+    if(!lex || lex[0] != '$') return -1;
 
     if(isdigit((unsigned char)lex[1])){
 
@@ -88,14 +45,7 @@ static int parse_reg_name(const char *lex, reg* reg_file){
 
     }
 
-
-    for(size_t i = 0; i < REG_FILE_SIZE; i++){
-
-        if(strcmp(lex, reg_file[i].reg_name) == 0) return reg_file[i].represent_num_of_reg;
-
-    }
-
-    return -1;
+    return regmap_lookup(lex);
 
 }
 
@@ -150,7 +100,7 @@ static Err parse_operand(app_context *app_context_param, const TokenVec *tv, siz
 
             }
 
-            int base = parse_reg_name(tv->v[*pos + 2].lexeme, reg_file);
+            int base = parse_reg_name(tv->v[*pos + 2].lexeme);
 
             if(base < 0) {
 
@@ -191,7 +141,7 @@ static Err parse_operand(app_context *app_context_param, const TokenVec *tv, siz
 
     if(t->kind == TOK_REG){
 
-        int r = parse_reg_name(t->lexeme, reg_file);
+        int r = parse_reg_name(t->lexeme);
 
         if(r < 0){
 
@@ -444,6 +394,7 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
 
         strncpy(mnemonic, tv->v[pos].lexeme, sizeof(mnemonic) - 1);
         mnemonic[sizeof(mnemonic) - 1] = '\0';
+        int mnemonic_col = (int)tv->v[pos].column_no;
         pos++;
 
         while(pos < tv->n){
@@ -482,6 +433,20 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
             }
 
             ops[operand_count++] = operand;
+        }
+
+        const InstructionSpec *instruction_spec = isa_lookup(mnemonic);
+
+        if(!instruction_spec || instruction_spec->op_count != operand_count || !are_operands_valid(instruction_spec, ops, operand_count)){
+
+            report_syntax(app_context_param, line_no, mnemonic_col, "May be invalid mnemonic, wrong operand count or operand types mismatch.", source_line);
+            for(size_t i = 0; i < operand_count; i++){
+
+                operand_free(&ops[i]);
+
+            }
+
+            return ERR_SYNTAX;
         }
 
 
