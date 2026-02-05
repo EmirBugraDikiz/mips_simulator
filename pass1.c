@@ -1,12 +1,14 @@
 #include "pass1.h"
 #include "error_handling.h"
+#include "ir.h"
 #include "symtab.h"
 #include "preprocess.h"
 #include "lexer.h"
 #include "parser.h"
+#include <stdint.h>
 #include <string.h>
 
-Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **lines, size_t nlines, IR *out_ir, Symtab *out_symtab, AsmState *out_final_state){
+Err assemble_pass1(app_context *app_context_param, const AsmConfig *cfg, char **lines, size_t nlines, IR *out_ir, Symtab *out_symtab, AsmState *out_final_state){
 
     if(!app_context_param || !cfg || !lines || !out_ir || !out_symtab || !out_final_state) {
 
@@ -36,8 +38,8 @@ Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **l
 
         if(buf[0] == '\0') continue;
 
-        TokenVec tv;
-        e = lex_line(buf, (int)ith_line, &tv, app_context_param);
+        TokenVec tv = {0};
+        e = lex_line(buf, (int)ith_line + 1, &tv, app_context_param);
 
         if(e != ERR_OK){
 
@@ -51,7 +53,7 @@ Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **l
 
         
         int has_label = 0;
-        Statement statement;
+        Statement statement = {0};
 
         e = parse_line(app_context_param, &tv, buf, (int)ith_line + 1, &has_label, &statement);
         tokenvec_free(&tv, app_context_param);
@@ -111,6 +113,8 @@ Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **l
                 return e;
 
             }
+
+            continue;
         }
 
 
@@ -219,6 +223,101 @@ Err assembl_pass1(app_context *app_context_param, const AsmConfig *cfg, char **l
             continue;
 
         }
+
+        if(statement.kind == ST_LABEL_PLUS_DIR_WORD){
+
+            if(state.section != SEC_DATA){
+
+                APP_ERROR(app_context_param, ".word must be defined in .data section.");
+                stmt_free_heap_parts(&statement);
+                ir_free(out_ir, app_context_param);
+                symtab_free(out_symtab, app_context_param);
+
+                return ERR_SYNTAX;
+
+            }
+
+            uint32_t base = cfg->data_base;
+            uint32_t pc = state.data_pc;
+            uint32_t addr = base + pc;
+
+            e = symtab_add(out_symtab, statement.as.label_plus_dir_word.name, addr, app_context_param);
+
+            if(e != ERR_OK){
+
+                stmt_free_heap_parts(&statement);
+                ir_free(out_ir, app_context_param);
+                symtab_free(out_symtab, app_context_param);
+
+                return e;
+
+            }
+
+            state.data_pc += statement.as.label_plus_dir_word.dir_word.n * 4;
+            e = ir_push(out_ir, &statement, app_context_param);
+            
+            if(e != ERR_OK){
+
+                stmt_free_heap_parts(&statement);
+                ir_free(out_ir, app_context_param);
+                symtab_free(out_symtab, app_context_param);
+
+                return e;
+
+            }
+
+            continue;
+
+
+        }
+
+        if(statement.kind == ST_LABEL_PLUS_INSTR){
+
+            if(state.section != SEC_TEXT){
+
+                APP_ERROR(app_context_param, "an instruction cannot be defined anywhere except .text section.");
+                stmt_free_heap_parts(&statement);
+                ir_free(out_ir, app_context_param);
+                symtab_free(out_symtab, app_context_param);
+
+                return ERR_SYNTAX;
+
+            }
+
+            uint32_t base = cfg->text_base;
+            uint32_t pc = state.text_pc;
+            uint32_t addr = base + pc;
+
+            e = symtab_add(out_symtab, statement.as.label_plus_instr.name, addr, app_context_param);
+
+            if(e != ERR_OK){
+
+                stmt_free_heap_parts(&statement);
+                ir_free(out_ir, app_context_param);
+                symtab_free(out_symtab, app_context_param);
+
+                return e;
+
+            }
+
+            state.text_pc += 4;
+
+            e = ir_push(out_ir, &statement, app_context_param);
+
+            if(e != ERR_OK){
+
+                stmt_free_heap_parts(&statement);
+                ir_free(out_ir, app_context_param);
+                symtab_free(out_symtab, app_context_param);
+
+                return e;
+
+            }
+
+            continue;
+
+        }
+
 
         stmt_free_heap_parts(&statement);
 
