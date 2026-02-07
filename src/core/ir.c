@@ -1,5 +1,5 @@
-#include "ir.h"
-#include "error_handling.h"
+#include "core/ir.h"
+#include "core/error_handling.h"
 #include <stdlib.h>
 
 

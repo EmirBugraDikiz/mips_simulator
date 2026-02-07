@@ -1,16 +1,16 @@
-#include "pass1.h"
-#include "error_handling.h"
-#include "ir.h"
-#include "symtab.h"
-#include "preprocess.h"
-#include "lexer.h"
-#include "parser.h"
+#include "asm/pass1.h"
+#include "core/error_handling.h"
+#include "core/ir.h"
+#include "core/symtab.h"
+#include "front/preprocess.h"
+#include "front/lexer.h"
+#include "front/parser.h"
 #include <stdint.h>
 #include <string.h>
 
 Err assemble_pass1(app_context *app_context_param, const AsmConfig *cfg, char **lines, size_t nlines, IR *out_ir, Symtab *out_symtab, AsmState *out_final_state){
 
-    if(!app_context_param || !cfg || !lines || !out_ir || !out_symtab || !out_final_state) {
+    if(!cfg || !lines || !out_ir || !out_symtab || !out_final_state) {
 
         APP_ERROR(app_context_param, "INVALID ARGUMENT");
         return ERR_INVALID_ARGUMENT;

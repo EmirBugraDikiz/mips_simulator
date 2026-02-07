@@ -1,5 +1,5 @@
-#include "lexer.h"
-#include "error_handling.h"
+#include "front/lexer.h"
+#include "core/error_handling.h"
 #include <errno.h>
 #include <ctype.h>
 #include <string.h>

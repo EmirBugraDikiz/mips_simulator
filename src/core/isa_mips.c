@@ -1,4 +1,4 @@
-#include "isa_mips.h"
+#include "core/isa_mips.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>

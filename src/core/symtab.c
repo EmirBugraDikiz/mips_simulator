@@ -1,5 +1,5 @@
-#include "symtab.h"
-#include "error_handling.h"
+#include "core/symtab.h"
+#include "core/error_handling.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,6 +22,7 @@ Err symtab_init(Symtab *st, app_context *app_context_param){
 
 Err symtab_free(Symtab *st, app_context *app_context_param){
 
+    (void)app_context_param;
     if(!st) return ERR_INVALID_ARGUMENT;
     free(st->v);
     st->v = NULL;

@@ -1,6 +1,6 @@
 #include "test.h"
-#include "../../lexer.h"
-#include "../../error_handling.h"
+#include "front/lexer.h"
+#include "core/error_handling.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -34,7 +34,7 @@ typedef struct{
 
 static void run_lex_case(const char *suite_name, const LexCase *test_case, app_context *app_context_param){
 
-    TokenVec tv;   // this tokenvec will be initialized in lex_line(...) function. Don't use it before lex_line(...).
+    TokenVec tv = {0};
     
     (void)app_context_param;
 
@@ -123,7 +123,7 @@ static const LexCase g_ident_and_directive_cases[] = {
     { "dir_data", ".data", 1, { {TOK_DOT,".data"} } },
     { "dir_word", ".word", 1, { {TOK_DOT,".word"} } },
 
-    // unknown directive. Lexer will lex it but parser will reject it.
+    // unknown directive. Lexer will lex it but parser will reject it (.globl is not supported).
     { "dir_unknown", ".globl", 1, { {TOK_DOT,".globl"} } },
 };
 
@@ -218,6 +218,14 @@ static const LexCase g_real_line_cases[] = {
         {TOK_INT,"-1"}, {TOK_COMMA,","},
         {TOK_INT,"0x10"}, {TOK_COMMA,","},
         {TOK_INT,"077"} } },
+
+    {"label_then_instruction_add",
+        "main: add $t0, $t1, $t2",
+        8,
+        {{TOK_IDENT, "main"}, {TOK_COLON, ":"},
+          {TOK_IDENT, "add"}, {TOK_REG, "$t0"},
+          {TOK_COMMA, ","},   {TOK_REG, "$t1"}, 
+          {TOK_COMMA, ","}, {TOK_REG, "$t2"}}}
 };
 
 

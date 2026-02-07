@@ -1,5 +1,5 @@
-#include "line.h"
-#include "error_handling.h"
+#include "core/line.h"
+#include "core/error_handling.h"
 #include <string.h>
 #include <stddef.h>
 #include <stdio.h>

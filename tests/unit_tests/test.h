@@ -2,10 +2,9 @@
 #define TEST_H
 
 #include <stddef.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../lexer.h"
+#include "core/error_handling.h"
 
 
 #define ARR_LEN(a) (sizeof(a)/sizeof((a)[0]))
@@ -62,5 +61,7 @@ void test_lex_all_tables(app_context *app_context_param);
 void test_preprocess_all_tables();
 
 void test_parser_tables(app_context *app_context_param);
+
+void test_pass1_tables(app_context *app_context_param);
 
 #endif

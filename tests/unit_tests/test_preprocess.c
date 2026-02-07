@@ -1,7 +1,7 @@
 #include "test.h"
 #include <stdio.h>
 #include <string.h>
-#include "../../preprocess.h"
+#include "front/preprocess.h"
 
 
 typedef struct{
@@ -65,24 +65,21 @@ static const PreprocessCase g_preprocess_comment_cases[] = {
 
     { "empty", "", "" },
     { "spaces_only", "   \t  ", "" },
-
     { "comment_only", "# only comment", "" },
     { "comment_only_leading_spaces", "   # comment after spaces", "" },
     { "comment_hash_only", "#", "" },
     { "comment_no_space_after_hash", "#comment", "" },
     { "comment_spaces_after_hash", "#      ", "" },
-
     { "code_then_comment_spaces", "add $t0, $t1  # trailing", "add $t0, $t1" },
     { "code_then_comment_no_space", "add $t0,$t1#x", "add $t0,$t1" },
-
     { "label_then_comment", "main:  # entry", "main:" },
     { "dir_then_comment", ".data  # data section", ".data" },
     { "word_then_comment", ".word 10, 20, 30 # init", ".word 10, 20, 30" },
-
     { "whitespace_then_comment_only", "      # nothing else", "" },
-
     { "comment_contains_delims", "# ) , : ( should be ignored", "" },
     { "comment_contains_directive", "# .word 1,2,3 just text", "" },
+    {"label_instruction_then_comment", "main: add $t0, $t1, $t2   #instruction after label in a line.", "main: add $t0, $t1, $t2"},
+    {"label_word_directive_then_comment", "array1: .word 10, 20, 30  # .word directive after label in a line.", "array1: .word 10, 20, 30"}
 
 };
 

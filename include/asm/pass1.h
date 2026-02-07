@@ -2,8 +2,8 @@
 #define PASS1_H
 
 
-#include "ir.h"
-#include "symtab.h"
+#include "core/ir.h"
+#include "core/symtab.h"
 
 typedef struct{
 

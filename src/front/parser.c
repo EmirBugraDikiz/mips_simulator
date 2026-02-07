@@ -1,15 +1,15 @@
-#include "parser.h"
-#include "error_handling.h"
+#include "front/parser.h"
+#include "core/error_handling.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <stdint.h>
-#include "lexer.h"
-#include "ir.h"
-#include "regmap.h"
-#include "isa_mips.h"
+#include "front/lexer.h"
+#include "core/ir.h"
+#include "core/regmap.h"
+#include "core/isa_mips.h"
 
 
 
@@ -190,6 +190,10 @@ static int tok_is_dot(const Token *t, const char *s){
 Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *source_line, int line_no, int *out_has_label, Statement *out_statement){
 
     if(!tv || !out_statement || !out_has_label) return ERR_INVALID_ARGUMENT;
+
+    fprintf(stderr, "DEBUG: parse_line called, tv->n=%zu, line=%d\n", tv->n, line_no);
+    fflush(stderr);
+
 
     *out_has_label = 0;
 
