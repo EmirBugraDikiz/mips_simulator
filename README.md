@@ -57,4 +57,24 @@ avoid memory leaks.
 ---
 
 
+## Testing & Debugging
 
+- Runtime memory analysis using **Valgrind**
+- Additional checks with **AddressSanitizer**
+- Defensive programming practises applied across all modules
+
+---
+
+## Build Instructions
+
+ ´´´bash
+ mkdir build
+ cd build cmake ..
+ make
+
+
+## References
+
+- Computer Architecture and Design — Patterson & Hennesy
+- Dİgital Design and Computer Architecture — Harris & Harris
+- MIPS32 Architecture Specification
