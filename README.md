@@ -67,10 +67,12 @@ avoid memory leaks.
 
 ## Build Instructions
 
- ´´´bash
+```bash
  mkdir build
  cd build cmake ..
  make
+ 
+ ---
 
 
 ## References
