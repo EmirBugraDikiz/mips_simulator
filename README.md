@@ -120,12 +120,16 @@ responsibilities between different components of the assembler:
   - Symbol table, IR, register mapping, and error handling
 
 - **mips_front**
-   -Frontend processing stages
-   -Lexer, parser, and preprocessig logic
+  - Frontend processing stages
+  - Lexer, parser, and preprocessig logic
 
 - **mips_asm**
-   -Application entry point
-   -Orchestrates the assembler pipeline
+  - Assembler passes
+  - Currently implements Pass 1
+
+- **mips_app**
+  - Application entry point
+  - Orchestrates the assembler pipeline
 
 This modular design improves maintainability, testability and allows individual
 components to be extended or replaced independently.
