@@ -73,11 +73,77 @@ avoid memory leaks.
 
 ---
 
-## Build Instructions
+## Build & Project Structure
+
+### Requirements
+
+
+- GCC or Clang (C11 support)
+- CMake >= 3.20
+- Linux environment recommended
+
+---
+
+
+### Build Instructions
 
 ```bash
- mkdir build
- cd build cmake ..
- make
- 
- ---
+mkdir build
+cd build
+cmake ..
+make
+```
+
+This will build:
+- multiple static libraries representing different stages of the assembler
+- the main assembler application
+- unit test executables
+
+### Running the Assembler
+```bash
+./mips_app
+```
+
+### Enabling Sanitizers
+
+AddressSanitizer (ASan) and UndefinedBehaviourSanitizer (UBSan) can be enabled at configure time.
+```bash
+cmake -DENABLE_ASAN=ON -DENABLE_UBSAN=ON ..
+make
+```
+
+The project is structured as multiple static libraries to clearly seperate
+responsibilities between different components of the assembler:
+
+- **mips_core**
+  - Core data structures and utilities
+  - Symbol table, IR, register mapping, and error handling
+
+- **mips_front**
+   -Frontend processing stages
+   -Lexer, parser, and preprocessig logic
+
+- **mips_asm**
+   -Application entry point
+   -Orchestrates the assembler pipeline
+
+This modular design improves maintainability, testability and allows individual
+components to be extended or replaced independently.
+
+## Testing
+
+Unit tests are build and executed using CTest
+
+```bash
+ctest
+```
+
+
+## Build Design Notes
+
+
+Each stage of the assembler pipeline is implemented as a seperate static
+library. This design demonstrates the logical seperation of an assembler into
+frontend, core, and pass-specific stages.
+
+Sanitizer support is integrated directly into the build system and can be enabled selectively.
