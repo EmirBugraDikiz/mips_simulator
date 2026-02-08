@@ -65,6 +65,14 @@ avoid memory leaks.
 
 ---
 
+## References
+
+- Computer Architecture and Design — Patterson & Hennesy
+- Dİgital Design and Computer Architecture — Harris & Harris
+- MIPS32 Architecture Specification
+
+---
+
 ## Build Instructions
 
 ```bash
@@ -73,10 +81,3 @@ avoid memory leaks.
  make
  
  ---
-
-
-## References
-
-- Computer Architecture and Design — Patterson & Hennesy
-- Dİgital Design and Computer Architecture — Harris & Harris
-- MIPS32 Architecture Specification
