@@ -59,6 +59,11 @@ add_executable(mips_app app/main.c)
 
 target_link_libraries(mips_app PRIVATE mips_asm)
 
+target_compile_definitions(mips_app PRIVATE 
+    INPUT_PROG_PATH="${CMAKE_SOURCE_DIR}/data/files/assembly_input.mips"
+    ERROR_LOG_PATH="${CMAKE_SOURCE_DIR}/data/files/error_log_file"
+)
+
 
 
 # Sanitizers 

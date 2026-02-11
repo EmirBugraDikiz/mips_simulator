@@ -1,0 +1,14 @@
+.data
+array1: .word 10, 20, 0xF0, -136
+array2: .word 25, 1, 5, -3
+
+.text
+
+main: add $t0, $t1, $t2
+above:
+beq $t2 $t0 below
+addi $t0, $t1, 0xFF
+j above
+
+below: sub $t0, $t1, $t2
+addi $t0 $t1, 1100

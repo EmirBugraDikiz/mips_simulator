@@ -5,14 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct input_program_t{
-
-    FILE* input;
-    char **lines;
-    size_t number_of_line;
-
-};
-
 
 
 static Err append_chunk(app_context* app_context_param, char **destination, size_t *len, size_t *cap, const char *source, size_t n){
