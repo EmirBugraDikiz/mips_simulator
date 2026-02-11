@@ -33,6 +33,18 @@ typedef enum{
 
 }ImmKind;
 
+typedef enum{
+
+    ROLE_RS,
+    ROLE_RT,
+    ROLE_RD,
+    ROLE_SHAMT,
+    ROLE_IMM,
+    ROLE_MEM,
+    ROLE_LABEL
+
+}OpRole;
+
 typedef struct{
 
     const char *mnemonic;
@@ -41,12 +53,13 @@ typedef struct{
     uint8_t funct;
     uint8_t op_count;
     OperandClass ops[3];
+    OpRole roles[3];
     ImmKind imm_kind;    
 
 }InstructionSpec;
 
 const InstructionSpec *isa_lookup(const char *mnemonic);
 
-int are_operands_valid(const InstructionSpec *instr_spec, Operand *ops, size_t op_count);
+int are_operands_valid(const InstructionSpec *instr_spec, const Operand *ops, size_t op_count);
 
 #endif

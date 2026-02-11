@@ -243,14 +243,14 @@ static const ParseCase g_parser_ok_cases[] = {
         ERR_OK,
         ST_DIR_TEXT,
         NULL,
-        {0}},
+        {{0}}},
 
     {"directive_data",
         ".data",
         ERR_OK,
         ST_DIR_DATA,
         NULL,
-        {0}},
+        {{0}}},
 
     {"directive_word_3",
         ".word 10, 20, -1",
@@ -264,7 +264,7 @@ static const ParseCase g_parser_ok_cases[] = {
         ERR_OK,
         ST_LABEL,
         "main",
-        {0}},
+        {{0}}},
 
         {"instruction_add",
         "add $t0, $t1, $t2",
@@ -309,21 +309,21 @@ static const ParseCase g_parser_bad_cases[] = {
         ERR_SYNTAX,
         0,
         NULL,
-        {0}},
+        {{0}}},
 
     {"label_double_colon",
         "main::",
         ERR_SYNTAX,
         0,
         NULL,
-        {0}},
+        {{0}}},
 
     {"instruction_missing_operand",
         "add $t0, $t1,",
         ERR_SYNTAX,
         0,
         NULL,
-        {0}}
+        {{0}}}
 
 };
 

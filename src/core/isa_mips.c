@@ -5,13 +5,13 @@
 
 static const InstructionSpec instruction_table[] = {
 
-    {"add", FMT_R, 0X00, 0x20, 3, {OPK_REG, OPK_REG, OPK_REG}, IMM_NONE},
-    {"sub", FMT_R, 0x00, 0x22, 3, {OPK_REG, OPK_REG, OPK_REG}, IMM_NONE},
-    {"addi", FMT_I, 0x08, 0x00, 3,{OPK_REG, OPK_REG, OPK_IMM}, IMM_SIGNED16},
-    {"lw", FMT_I, 0x23, 0x00, 2, {OPK_REG, OPK_MEM}, IMM_SIGNED16},
-    {"sw", FMT_I, 0x2B, 0x00, 2, {OPK_REG, OPK_MEM}, IMM_SIGNED16},
-    {"beq", FMT_I, 0x04, 0x00, 3, {OPK_REG, OPK_REG, OPK_LABEL}, IMM_BRANCH16},
-    {"j", FMT_J, 0x02, 0x00, 1, {OPK_LABEL}, IMM_J26}
+    {"add", FMT_R, 0X00, 0x20, 3, {OPK_REG, OPK_REG, OPK_REG}, {ROLE_RD, ROLE_RS, ROLE_RT}, IMM_NONE},
+    {"sub", FMT_R, 0x00, 0x22, 3, {OPK_REG, OPK_REG, OPK_REG}, {ROLE_RD, ROLE_RS, ROLE_RT}, IMM_NONE},
+    {"addi", FMT_I, 0x08, 0x00, 3,{OPK_REG, OPK_REG, OPK_IMM}, {ROLE_RT, ROLE_RS, ROLE_IMM}, IMM_SIGNED16},
+    {"lw", FMT_I, 0x23, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},
+    {"sw", FMT_I, 0x2B, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},
+    {"beq", FMT_I, 0x04, 0x00, 3, {OPK_REG, OPK_REG, OPK_LABEL}, {ROLE_RS, ROLE_RT, ROLE_LABEL}, IMM_BRANCH16},
+    {"j", FMT_J, 0x02, 0x00, 1, {OPK_LABEL}, {ROLE_LABEL}, IMM_J26}
 
 };
 
@@ -41,7 +41,7 @@ static OpKind convert_operand_class_to_operand_enum(const OperandClass operand_c
 
 }
 
-int are_operands_valid(const InstructionSpec *instr_spec, Operand *ops, size_t op_count){
+int are_operands_valid(const InstructionSpec *instr_spec, const Operand *ops, size_t op_count){
 
     if(!instr_spec || !ops) return 0;
     if(instr_spec->op_count != op_count) return 0; 
