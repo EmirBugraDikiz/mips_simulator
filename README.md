@@ -11,7 +11,7 @@ The project is developed incrementally with a strong focus on correctness, modul
 ## Features
 
 - Data structure to handle and support dynamic line of input and length (Input Program)
-- Error handling and debugging while developing the project to avoid invalid function argument.
+- Error handling and debugging while developing the project to avoid invalid function argument and errors that can be occur.
 - Two-pass assembler architecture
 - Lexer and parser for MIPS assembly syntax
 - Symbol table and intermediate representation (IR)
@@ -32,7 +32,7 @@ The assembler is divided into independent modules
 - **Intermediate Representation**: Holds parsed instructions before encoding
 - **Pass1**: Builds the symbol table and validates program structure
 - **Pass2 (planned)**: Encodes instructions into machine code
-- **CPU Sİmulator (planned)**: Executes instructions using a fetch-decode-execute cycle 
+- **CPU Simulator (planned)**: Executes instructions using a fetch-decode-execute cycle 
 
 
 This seperation allows each stage of the pipeline to be developed, tested, and reasoned about independently.
@@ -68,7 +68,7 @@ avoid memory leaks.
 ## References
 
 - Computer Architecture and Design — Patterson & Hennesy
-- Dİgital Design and Computer Architecture — Harris & Harris
+- Digital Design and Computer Architecture — Harris & Harris
 - MIPS32 Architecture Specification
 
 ---
@@ -121,7 +121,7 @@ responsibilities between different components of the assembler:
 
 - **mips_front**
   - Frontend processing stages
-  - Lexer, parser, and preprocessig logic
+  - Lexer, parser, and preprocessing logic
 
 - **mips_asm**
   - Assembler passes
