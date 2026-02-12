@@ -1,5 +1,6 @@
 #include "core/symtab.h"
 #include "core/error_handling.h"
+#include "core/ir.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -33,7 +34,7 @@ Err symtab_free(Symtab *st, app_context *app_context_param){
 }
 
 
-int symtab_find(Symtab *st, const char *name){
+int symtab_find(const Symtab *st, const char *name){
 
     if(!st || !name) return -1;
 
@@ -67,7 +68,7 @@ static Err symtab_grow(Symtab *st, app_context *app_context_param){
 
 }
 
-Err symtab_add(Symtab *st, const char *name, uint32_t addr, app_context *app_context_param){
+Err symtab_add(Symtab *st, const char *name, uint32_t addr, Section section, app_context *app_context_param){
 
     if(!st || !name) {
 
@@ -94,15 +95,16 @@ Err symtab_add(Symtab *st, const char *name, uint32_t addr, app_context *app_con
 
     st->v[st->n].name[sizeof(st->v[st->n].name) - 1] = '\0';
     st->v[st->n].addr = addr;
+    st->v[st->n].section = section;
     st->n++;
 
     return ERR_OK;
 
 }
 
-Err symtab_lookup(Symtab *st, const char *name, uint32_t *out_addr, app_context *app_context_param){
+Err symtab_lookup(const Symtab *st, const char *name, Symbol *out_sym, app_context *app_context_param){
 
-    if(!st || !name || !out_addr){
+    if(!st || !name || !out_sym){
 
         APP_ERROR(app_context_param, "INVALID ARGUMENT.");
         return ERR_INVALID_ARGUMENT;
@@ -113,7 +115,8 @@ Err symtab_lookup(Symtab *st, const char *name, uint32_t *out_addr, app_context 
 
     if(index < 0) return ERR_UNDEF_LABEL;
 
-    *out_addr = st->v[index].addr;
+    
+    *out_sym = st->v[index];
 
     return ERR_OK;
 
