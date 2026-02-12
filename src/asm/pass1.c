@@ -89,7 +89,7 @@ Err assemble_pass1(app_context *app_context_param, const AsmConfig *cfg, char **
             uint32_t addr = base + pc;
 
 
-            e = symtab_add(out_symtab, statement.as.label.name, addr, app_context_param);
+            e = symtab_add(out_symtab, statement.as.label.name, addr, state.section, app_context_param);
 
             if(e != ERR_OK){
 
@@ -241,7 +241,7 @@ Err assemble_pass1(app_context *app_context_param, const AsmConfig *cfg, char **
             uint32_t pc = state.data_pc;
             uint32_t addr = base + pc;
 
-            e = symtab_add(out_symtab, statement.as.label_plus_dir_word.name, addr, app_context_param);
+            e = symtab_add(out_symtab, statement.as.label_plus_dir_word.name, addr, state.section, app_context_param);
 
             if(e != ERR_OK){
 
@@ -288,7 +288,7 @@ Err assemble_pass1(app_context *app_context_param, const AsmConfig *cfg, char **
             uint32_t pc = state.text_pc;
             uint32_t addr = base + pc;
 
-            e = symtab_add(out_symtab, statement.as.label_plus_instr.name, addr, app_context_param);
+            e = symtab_add(out_symtab, statement.as.label_plus_instr.name, addr, state.section, app_context_param);
 
             if(e != ERR_OK){
 
