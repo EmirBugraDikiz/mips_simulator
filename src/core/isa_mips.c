@@ -5,13 +5,13 @@
 
 static const InstructionSpec instruction_table[] = {
 
-    {"add", FMT_R, 0X00, 0x20, 3, {OPK_REG, OPK_REG, OPK_REG}, {ROLE_RD, ROLE_RS, ROLE_RT}, IMM_NONE},
-    {"sub", FMT_R, 0x00, 0x22, 3, {OPK_REG, OPK_REG, OPK_REG}, {ROLE_RD, ROLE_RS, ROLE_RT}, IMM_NONE},
-    {"addi", FMT_I, 0x08, 0x00, 3,{OPK_REG, OPK_REG, OPK_IMM}, {ROLE_RT, ROLE_RS, ROLE_IMM}, IMM_SIGNED16},
-    {"lw", FMT_I, 0x23, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},
-    {"sw", FMT_I, 0x2B, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},
-    {"beq", FMT_I, 0x04, 0x00, 3, {OPK_REG, OPK_REG, OPK_LABEL}, {ROLE_RS, ROLE_RT, ROLE_LABEL}, IMM_BRANCH16},
-    {"j", FMT_J, 0x02, 0x00, 1, {OPK_LABEL}, {ROLE_LABEL}, IMM_J26}
+    {"add", FMT_R, ENC_R_3REG, 0X00, 0x20, 3, {OPK_REG, OPK_REG, OPK_REG}, {ROLE_RD, ROLE_RS, ROLE_RT}, IMM_NONE},
+    {"sub", FMT_R, ENC_R_3REG, 0x00, 0x22, 3, {OPK_REG, OPK_REG, OPK_REG}, {ROLE_RD, ROLE_RS, ROLE_RT}, IMM_NONE},
+    {"addi", FMT_I, ENC_I_ALU, 0x08, 0x00, 3,{OPK_REG, OPK_REG, OPK_IMM}, {ROLE_RT, ROLE_RS, ROLE_IMM}, IMM_SIGNED16},
+    {"lw", FMT_I, ENC_I_MEM, 0x23, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},  // ops[] and role[] arrays size are 3, but we assumed lw and sw have 2 operand which are OP_REG and OP_MEM(offset and base register) . For security i decided to put OPK_REG and ROLE_NONE into last member of these arrays.
+    {"sw", FMT_I, ENC_I_MEM, 0x2B, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},
+    {"beq", FMT_I, ENC_I_BRANCH, 0x04, 0x00, 3, {OPK_REG, OPK_REG, OPK_LABEL}, {ROLE_RS, ROLE_RT, ROLE_LABEL}, IMM_BRANCH16},
+    {"j", FMT_J, ENC_J_LABEL, 0x02, 0x00, 1, {OPK_LABEL}, {ROLE_LABEL}, IMM_J26}
 
 };
 

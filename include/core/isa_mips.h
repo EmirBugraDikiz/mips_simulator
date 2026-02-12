@@ -34,7 +34,8 @@ typedef enum{
 }ImmKind;
 
 typedef enum{
-
+    
+    ROLE_NONE = 0,
     ROLE_RS,
     ROLE_RT,
     ROLE_RD,
@@ -45,15 +46,36 @@ typedef enum{
 
 }OpRole;
 
+typedef enum{
+
+    ENC_INVALID = 0,
+    ENC_R_3REG,
+    ENC_R_SHIFT,
+    ENC_R_JR,
+
+    ENC_I_ALU,
+    ENC_I_MEM,
+    ENC_I_BRANCH,
+
+    ENC_J_LABEL
+
+}EncodingKind;
+
+
 typedef struct{
 
     const char *mnemonic;
+
     InstructionFormat format;
+    EncodingKind encoding_kind;
+    
     uint8_t opcode;
     uint8_t funct;
+
     uint8_t op_count;
     OperandClass ops[3];
     OpRole roles[3];
+
     ImmKind imm_kind;    
 
 }InstructionSpec;
