@@ -50,7 +50,7 @@ typedef enum{
 
     ENC_INVALID = 0,
     ENC_R_3REG,
-    ENC_R_SHIFT,
+    ENC_R_SHIFT_IMM,
     ENC_R_JR,
 
     ENC_I_ALU,

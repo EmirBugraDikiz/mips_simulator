@@ -96,6 +96,33 @@ static Err encode_r_3reg(app_context *app_context_param, const InstructionSpec *
 
 }
 
+static Err encode_r_shift_imm(app_context *app_contex_param, InstructionSpec *instr_spec, const Operand *ops, uint32_t *out_word){
+
+    (void)app_contex_param;
+
+    uint8_t rt = 0;
+    uint8_t rd = 0;
+    uint32_t shamt = 0;
+
+    for(size_t i = 0; i < instr_spec->op_count; i++){
+
+        OpRole role = instr_spec->roles[i];
+
+        if(role == ROLE_RD) rd = (uint8_t)ops[i].v.reg;
+        else if(role == ROLE_RT) rt = (uint8_t)ops[i].v.reg;
+        else if(role == ROLE_SHAMT) shamt = ops[i].v.imm;
+        else return ERR_SYNTAX;
+    }
+
+    if(instr_spec->imm_kind != IMM_SHAMT5) return ERR_SYNTAX;
+    if(!check_range_shamt5(shamt)) return ERR_SYNTAX;
+
+    uint8_t shamt5 = (uint8_t)(int8_t)shamt;
+
+    *out_word = pack_r(0, rt, rd, shamt5, instr_spec->funct);
+    return ERR_OK;
+
+}
 
 static Err encode_i_alu(app_context *app_context_param, const InstructionSpec *instr_spec, const Operand *ops, uint32_t *out_word){
 
@@ -222,7 +249,7 @@ static Err encode_i_branch(app_context *app_context_param, const InstructionSpec
     }
 
     uint32_t next = current_addr + 4u;
-    int32_t delta = (int32_t)sym.addr - (int32_t)next;
+    int32_t delta = (int32_t)sym.addr - (int32_t)next;  // symbol address must be lower than INT32_MAX (0X7FFFFFFF)
 
     if((delta % 4) != 0) return ERR_SYNTAX;
 
@@ -258,6 +285,14 @@ static Err encode_j_label(app_context *app_context_param, const InstructionSpec 
 
     if(e != ERR_OK) return e;
 
+
+    if((sym.addr & 3u) != 0u){    // is address divisible by 4
+
+        APP_ERROR(app_context_param, "jump target is not 4-byte aligned");
+        return ERR_SYNTAX;
+
+    }
+
     if(sym.section != SEC_TEXT){
         
         APP_ERROR(app_context_param, "jump target must be in .text section");
@@ -266,14 +301,14 @@ static Err encode_j_label(app_context *app_context_param, const InstructionSpec 
     }
     uint32_t next = current_addr + 4u;
 
-    if((sym.addr & 0xF0000000u) != (next & 0xF0000000u)){
+    if((sym.addr & 0xF0000000u) != (next & 0xF0000000u)){  // check target address and PC are in the same 256 mb region.
 
         APP_ERROR(app_context_param, "jump target out of 256MB region (PC[31:28] mismatch)");
         return ERR_SYNTAX;
 
     }
 
-    uint32_t target26 = (sym.addr >> 2) & 0x03FFFFFFu;
+    uint32_t target26 = (sym.addr >> 2) & 0x03FFFFFFu;   // calculcate word index with shifting by 2. it is shortly means divide by 4
     *out_word = pack_j(instr_spec->opcode, target26);
     return ERR_OK;
 
