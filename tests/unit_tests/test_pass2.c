@@ -154,6 +154,8 @@ static void run_pass2_case(app_context *app_context_param , pass2_case *test_cas
     
 
     assembler_output_free(&out_assembler, app_context_param);
+    ir_free(&ir, app_context_param);
+    symtab_free(&symtab, app_context_param);
 
 
 }
