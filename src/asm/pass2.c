@@ -6,6 +6,7 @@
 #include "core/symtab.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -96,7 +97,7 @@ static Err encode_r_3reg(app_context *app_context_param, const InstructionSpec *
 
 }
 
-static Err encode_r_shift_imm(app_context *app_contex_param, InstructionSpec *instr_spec, const Operand *ops, uint32_t *out_word){
+static Err encode_r_shift_imm(app_context *app_contex_param, const InstructionSpec *instr_spec, const Operand *ops, uint32_t *out_word){
 
     (void)app_contex_param;
 
@@ -314,11 +315,12 @@ static Err encode_j_label(app_context *app_context_param, const InstructionSpec 
 
 }
 
-static Err encode_instruction(app_context *app_context_param, const InstructionSpec *instr_spec, const Operand *ops, const Symtab *symtab, uint32_t current_addr, uint32_t *out_word){
+Err encode_instruction(app_context *app_context_param, const InstructionSpec *instr_spec, const Operand *ops, const Symtab *symtab, uint32_t current_addr, uint32_t *out_word){
 
     switch (instr_spec->encoding_kind) {
         
         case ENC_R_3REG: return encode_r_3reg(app_context_param, instr_spec, ops, out_word);
+        case ENC_R_SHIFT_IMM: return encode_r_shift_imm(app_context_param, instr_spec, ops, out_word);
         case ENC_I_ALU: return encode_i_alu(app_context_param, instr_spec, ops, out_word);
         case ENC_I_MEM: return encode_i_mem(app_context_param, instr_spec, ops, out_word);
         case ENC_I_BRANCH: return encode_i_branch(app_context_param, instr_spec, ops, symtab, current_addr, out_word);
@@ -377,7 +379,7 @@ static void stmt_get_word_view(const Statement *statement, const int32_t **out_v
 
 Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const AsmState *final_state, const IR *ir, const Symtab *symtab, AssemblerOutput *out){
 
-    if(!app_context_param || !cfg || !final_state || !ir || !symtab || !out) return ERR_INVALID_ARGUMENT;
+    if(!cfg || !final_state || !ir || !symtab || !out) return ERR_INVALID_ARGUMENT;
 
 
     memset(out, 0, sizeof(*out));
@@ -405,6 +407,8 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
     uint32_t data_pc = 0;
 
     for(size_t i = 0; i < ir->n; i++){
+
+        fprintf(stderr, "DEBUG: for loop iteration for ir statements\n");
 
         const Statement *st = &ir->v[i];
 

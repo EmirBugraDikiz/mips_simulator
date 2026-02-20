@@ -42,7 +42,8 @@ target_link_libraries(mips_front PUBLIC mips_core)
 
 
 add_library(mips_asm STATIC
-    src/asm/pass1.c)
+    src/asm/pass1.c
+    src/asm/pass2.c)
 
 
 target_link_libraries(mips_asm PUBLIC mips_front)

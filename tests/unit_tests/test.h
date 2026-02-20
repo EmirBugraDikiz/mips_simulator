@@ -41,6 +41,18 @@ static inline void test_fail(const char *file, int line, const char *expression,
 }while(0)    
 
 
+#define ASSERT_EQ_UINT32_T(a, b) do{\
+    unsigned long _a = (unsigned long)(a);\
+    unsigned long _b = (unsigned long)(b);\
+    if(_a != _b){\
+        char _buf[256];\
+        snprintf(_buf, sizeof(_buf),\
+                 "Expected %s == %s, but got %lu vs %lu",\
+                 #a, #b, _a, _b);\
+        test_fail(__FILE__, __LINE__, #a "==" #b, _buf);\
+    }\
+}while(0)
+
 #define ASSERT_STREQ(a, b) do{\
     const char *_a = (a);\
     const char *_b = (b);\
@@ -63,5 +75,7 @@ void test_preprocess_all_tables();
 void test_parser_tables(app_context *app_context_param);
 
 void test_pass1_tables(app_context *app_context_param);
+
+void test_all_pass2_cases(app_context *app_context_param);
 
 #endif

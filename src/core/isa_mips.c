@@ -32,7 +32,7 @@ static const InstructionSpec instruction_table[] = {
     {"slti", FMT_I, ENC_I_ALU, 0x0A, 0x00, 3, {OPK_REG, OPK_REG, OPK_IMM}, {ROLE_RT, ROLE_RS, ROLE_IMM}, IMM_SIGNED16},
     {"sltiu", FMT_I, ENC_I_ALU, 0x0B, 0x00, 3, {OPK_REG, OPK_REG, OPK_IMM}, {ROLE_RT, ROLE_RS, ROLE_IMM}, IMM_SIGNED16},
 
-    {"lw", FMT_I, ENC_I_MEM, 0x23, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},  // ops[] and role[] arrays size are 3, but we assumed lw and sw have 2 operand which are OP_REG and OP_MEM(offset and base register) . For security i decided to put OPK_REG and ROLE_NONE into last member of these arrays.
+    {"lw", FMT_I, ENC_I_MEM, 0x23, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},  // ops[] and role[] arrays size are 3, but I assumed lw and sw have 2 operand which are OP_REG and OP_MEM(offset and base register) . For security i decided to put OPK_REG and ROLE_NONE into last member of these arrays.
     {"sw", FMT_I, ENC_I_MEM, 0x2B, 0x00, 2, {OPK_REG, OPK_MEM}, {ROLE_RT, ROLE_MEM}, IMM_SIGNED16},
     
     {"beq", FMT_I, ENC_I_BRANCH, 0x04, 0x00, 3, {OPK_REG, OPK_REG, OPK_LABEL}, {ROLE_RS, ROLE_RT, ROLE_LABEL}, IMM_BRANCH16},

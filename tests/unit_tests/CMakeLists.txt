@@ -3,7 +3,8 @@ add_executable(mips_tests
     test_lexer.c
     test_parser.c
     test_pass1.c
-    test_preprocess.c)
+    test_preprocess.c
+    test_pass2.c)
 
 
 target_link_libraries(mips_tests PRIVATE mips_asm)
