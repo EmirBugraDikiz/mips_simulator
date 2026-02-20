@@ -31,7 +31,7 @@ The assembler is divided into independent modules
 - **Symbol Table**: Stores labels and corresponding address in phase "pass1"
 - **Intermediate Representation**: Holds parsed instructions before encoding
 - **Pass1**: Builds the symbol table and validates program structure
-- **Pass2 (planned)**: Encodes instructions into machine code
+- **Pass2**: Encodes instructions into machine code
 - **CPU Simulator (planned)**: Executes instructions using a fetch-decode-execute cycle 
 
 
