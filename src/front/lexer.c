@@ -61,6 +61,14 @@ static Err tokenvec_grow(TokenVec *tv, app_context *app_context_param){
 
 static Err tokenvec_push(TokenVec *tv, const Token *t, app_context *app_context_param){
 
+
+    if(!tv || !t){
+
+        APP_ERROR(app_context_param, "INVALID ARGUMENT");
+        return ERR_INVALID_ARGUMENT;
+
+    }
+
     if(tv->n == tv->cap){
 
         Err e = tokenvec_grow(tv, app_context_param);
