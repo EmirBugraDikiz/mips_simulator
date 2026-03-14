@@ -61,7 +61,7 @@ Err assemble_pass1(app_context *app_context_param, const AsmConfig *cfg, char **
 
         if(e != ERR_OK){
 
-            // statement that acquired from parse_line can be have some heap parts, so we have to check and free it for per line
+            // statement that acquired from parse_line can have some heap parts, so we have to check and free it per line
 
             stmt_free_heap_parts(&statement);
             ir_free(out_ir, app_context_param);

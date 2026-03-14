@@ -71,8 +71,6 @@ Err assembler_output_free(AssemblerOutput *out, app_context *app_context_param){
 
 static Err encode_r_3reg(app_context *app_context_param, const InstructionSpec *instr_spec, const Operand *ops, uint32_t *out_word){
 
-    (void)app_context_param;
-
     uint8_t rs = 0;
     uint8_t rt = 0;
     uint8_t rd = 0;
@@ -88,7 +86,12 @@ static Err encode_r_3reg(app_context *app_context_param, const InstructionSpec *
 
         else if(role == ROLE_RD) rd = (uint8_t)ops[i].v.reg;
 
-        else return ERR_SYNTAX;
+        else{
+
+            APP_ERROR(app_context_param, "Expected operand roles don't match");
+            return ERR_SYNTAX;
+
+        } 
          
     }
 
@@ -98,8 +101,6 @@ static Err encode_r_3reg(app_context *app_context_param, const InstructionSpec *
 }
 
 static Err encode_r_shift_imm(app_context *app_contex_param, const InstructionSpec *instr_spec, const Operand *ops, uint32_t *out_word){
-
-    (void)app_contex_param;
 
     uint8_t rt = 0;
     uint8_t rd = 0;
@@ -112,11 +113,26 @@ static Err encode_r_shift_imm(app_context *app_contex_param, const InstructionSp
         if(role == ROLE_RD) rd = (uint8_t)ops[i].v.reg;
         else if(role == ROLE_RT) rt = (uint8_t)ops[i].v.reg;
         else if(role == ROLE_SHAMT) shamt = ops[i].v.imm;
-        else return ERR_SYNTAX;
+        else{
+
+            APP_ERROR(app_contex_param, "Expected operand roles don't match");
+            return ERR_SYNTAX;
+
+        } 
     }
 
-    if(instr_spec->imm_kind != IMM_SHAMT5) return ERR_SYNTAX;
-    if(!check_range_shamt5(shamt)) return ERR_SYNTAX;
+    if(instr_spec->imm_kind != IMM_SHAMT5){
+
+        APP_ERROR(app_contex_param, "Expected immediate kind don't match");
+        return ERR_SYNTAX;
+
+    };
+    if(!check_range_shamt5(shamt)){
+
+        APP_ERROR(app_contex_param, "invalid immediate range: must be between 0 - 31");
+        return ERR_SYNTAX;
+
+    }
 
     uint8_t shamt5 = (uint8_t)(int8_t)shamt;
 
@@ -126,9 +142,6 @@ static Err encode_r_shift_imm(app_context *app_contex_param, const InstructionSp
 }
 
 static Err encode_i_alu(app_context *app_context_param, const InstructionSpec *instr_spec, const Operand *ops, uint32_t *out_word){
-
-
-    (void)app_context_param;
 
     uint8_t rs = 0;
     uint8_t rt = 0;
@@ -145,7 +158,12 @@ static Err encode_i_alu(app_context *app_context_param, const InstructionSpec *i
 
         else if(role == ROLE_IMM) imm32 = ops[i].v.imm;
 
-        else return ERR_SYNTAX;
+        else{
+
+            APP_ERROR(app_context_param, "Expected operand roles don't match");
+            return ERR_SYNTAX;
+
+        }
 
     }
 
@@ -154,12 +172,23 @@ static Err encode_i_alu(app_context *app_context_param, const InstructionSpec *i
     switch (instr_spec->imm_kind) {
 
         case IMM_SIGNED16:
-            if(!check_range_signed16(imm32)) return ERR_SYNTAX;
+            if(!check_range_signed16(imm32)){
+
+                APP_ERROR(app_context_param, "invalid immediate range: must be 16 bit signed value (-32768 through 32767)");
+                return ERR_SYNTAX;
+
+            }
+            
             imm16 = (uint16_t)(int16_t)imm32;
             break;
     
         case IMM_UNSIGNED16:
-            if(!check_range_unsigned16(imm32)) return ERR_SYNTAX;
+            if(!check_range_unsigned16(imm32)){
+
+                APP_ERROR(app_context_param, "invalid immediate range: must be 16 bit unsigned value (0 through 65535)");
+                return ERR_SYNTAX;
+
+            };
             imm16 = (uint16_t)imm32;
             break;
 
@@ -175,8 +204,6 @@ static Err encode_i_alu(app_context *app_context_param, const InstructionSpec *i
 
 
 static Err encode_i_mem(app_context *app_context_param, const InstructionSpec *instr_spec, const Operand *ops, uint32_t *out_word){
-
-    (void)app_context_param;
 
     uint8_t rs = 0;
     uint8_t rt = 0;
@@ -195,12 +222,28 @@ static Err encode_i_mem(app_context *app_context_param, const InstructionSpec *i
 
         } 
 
-        else return ERR_SYNTAX;
+        else{
+
+            APP_ERROR(app_context_param, "Expected operand roles don't match");
+            return ERR_SYNTAX;
+
+        };
 
     }
 
-    if(instr_spec->imm_kind != IMM_SIGNED16) return ERR_SYNTAX;
-    if(!check_range_signed16(off)) return ERR_SYNTAX;
+    if(instr_spec->imm_kind != IMM_SIGNED16){
+
+        APP_ERROR(app_context_param, "Expected immediate kind don't match");
+        return ERR_SYNTAX;
+
+    }
+
+    if(!check_range_signed16(off)){
+
+        APP_ERROR(app_context_param, "invalid immediate range: must be 16 bit signed value (-32768 through 32767)");
+        return ERR_SYNTAX;
+
+    };
 
     uint16_t imm16 = (uint16_t)(int16_t)off;
 
@@ -211,8 +254,6 @@ static Err encode_i_mem(app_context *app_context_param, const InstructionSpec *i
 
 
 static Err encode_i_branch(app_context *app_context_param, const InstructionSpec *instr_spec, const Operand *ops, const Symtab *symtab, uint32_t current_addr, uint32_t *out_word){
-
-    (void)app_context_param;
 
     uint8_t rs = 0;
     uint8_t rt = 0;
@@ -229,7 +270,12 @@ static Err encode_i_branch(app_context *app_context_param, const InstructionSpec
 
         else if(role == ROLE_LABEL) label = ops[i].v.label;
 
-        else return ERR_SYNTAX;
+        else{
+
+            APP_ERROR(app_context_param, "Expected operand roles don't match");
+            return ERR_SYNTAX;
+
+        };
 
     }
 
@@ -252,11 +298,20 @@ static Err encode_i_branch(app_context *app_context_param, const InstructionSpec
     uint32_t next = current_addr + 4u;
     int32_t delta = (int32_t)sym.addr - (int32_t)next;  // symbol address must be lower than INT32_MAX (0X7FFFFFFF)
 
-    if((delta % 4) != 0) return ERR_SYNTAX;
+    if((delta % 4) != 0){
+
+        APP_ERROR(app_context_param, "branch instruction error: calculated delta value must be word align (4 byte)");
+        return ERR_SYNTAX;
+
+    }
 
     int32_t offset_words = delta / 4;
 
-    if(!check_range_signed16(offset_words)) return ERR_SYNTAX;
+    if(!check_range_signed16(offset_words)){
+
+        APP_ERROR(app_context_param, "branch offset (target - next) overflow");
+        return ERR_SYNTAX;
+    }
 
     uint16_t imm16 = (uint16_t)(int16_t)offset_words;
     *out_word = pack_i(instr_spec->opcode, rs, rt, imm16);
@@ -267,15 +322,18 @@ static Err encode_i_branch(app_context *app_context_param, const InstructionSpec
 
 static Err encode_j_label(app_context *app_context_param, const InstructionSpec *instr_spec, const Operand *ops, const Symtab *symtab, uint32_t current_addr, uint32_t *out_word){
 
-    (void)app_context_param;
-
     const char *label = NULL;
 
     for(size_t i = 0; i < instr_spec->op_count; i++){
 
         OpRole role = instr_spec->roles[i];
         if(role == ROLE_LABEL) label = ops[i].v.label;
-        else return ERR_SYNTAX;
+        else{
+
+            APP_ERROR(app_context_param, "Expected operand roles don't match");
+            return ERR_SYNTAX;
+
+        }
 
     }
 
@@ -309,7 +367,7 @@ static Err encode_j_label(app_context *app_context_param, const InstructionSpec 
 
     }
 
-    uint32_t target26 = (sym.addr >> 2) & 0x03FFFFFFu;   // calculcate word index with shifting by 2. it is shortly means divide by 4
+    uint32_t target26 = (sym.addr >> 2) & 0x03FFFFFFu;   // calculcate word index with shifting by 2. it shortly means divide by 4
     *out_word = pack_j(instr_spec->opcode, target26);
     return ERR_OK;
 
@@ -377,6 +435,15 @@ static void stmt_get_word_view(const Statement *statement, const int32_t **out_v
 }
 
 
+static void report_syntax(app_context *app_context_param, size_t line_no, const char *message){
+
+    (void)app_context_param;
+
+    fprintf(stderr, "Syntax error at line %lu: %s\n", line_no, message);
+    return;
+
+}
+
 Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const AsmState *final_state, const IR *ir, const Symtab *symtab, AssemblerOutput *out){
 
     if(!cfg || !final_state || !ir || !symtab || !out) return ERR_INVALID_ARGUMENT;
@@ -433,6 +500,7 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
                 if(section != SEC_DATA){
 
                     assembler_output_free(out, app_context_param);
+                    report_syntax(app_context_param, (size_t)ir->v[i].line_no, "word directives must be defined in .data section");
                     return ERR_SYNTAX;
                 }
 
@@ -443,6 +511,7 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
                 if(data_pc / 4 + n > out->data_words){
 
                     assembler_output_free(out, app_context_param);
+                    report_syntax(app_context_param, (size_t)ir->v[i].line_no, "word numbers are more than expected");
                     return ERR_SYNTAX;
 
                 }
@@ -462,6 +531,7 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
                 if(section != SEC_TEXT){
 
                     assembler_output_free(out, app_context_param);
+                    report_syntax(app_context_param, (size_t)ir->v[i].line_no, "instructions must be defined in .text section");
                     return ERR_SYNTAX;
 
                 }
@@ -477,6 +547,7 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
                 if(!instr_spec){
 
                     assembler_output_free(out, app_context_param);
+                    report_syntax(app_context_param, (size_t)ir->v[i].line_no, "unsupported instruction name");
                     return ERR_SYNTAX;
 
                 }
@@ -486,6 +557,7 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
                 if(!are_operands_valid(instr_spec, ops, (size_t)op_count)){
 
                     assembler_output_free(out, app_context_param);
+                    report_syntax(app_context_param, (size_t)ir->v[i].line_no, "Operand mismatch or wrong number of operand for corresponding instruction");
                     return ERR_SYNTAX;
 
                 }
@@ -495,6 +567,7 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
                 if((text_pc / 4) >= out->text_words){
 
                     assembler_output_free(out, app_context_param);
+                    report_syntax(app_context_param, (size_t)ir->v[i].line_no, "instruction numbers are more than expected");
                     return ERR_SYNTAX;
 
                 }
@@ -517,6 +590,7 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
             
             default:
                 assembler_output_free(out, app_context_param);
+                report_syntax(app_context_param, (size_t)ir->v[i].line_no, "Unrecognized statement");
                 return ERR_SYNTAX;
         }
 
@@ -525,6 +599,7 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
     if(text_pc != final_state->text_pc || data_pc != final_state->data_pc){
 
         assembler_output_free(out, app_context_param);
+        fprintf(stderr, "Something went wrong\n");
         return ERR_SYNTAX;
 
     }
