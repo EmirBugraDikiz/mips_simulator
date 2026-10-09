@@ -1,14 +1,25 @@
 .data
-array1: .word 10, 20, 0xF0, -136
-array2: .word 25, 1, 5, -3
+numbers: .word 12, 7, 25, -4, 10
+result: .word 0
 
 .text
+main: ori $s0, $zero, 0x1001
+sll $s0, $s0, 16
+addiu $t0, $zero, 0
+addiu $t1, $zero, 5
+addiu $t2, $zero, 0
 
-main: add $t0, $t1, $t2
-above:
-beq $t2 $t0 below
-addi $t0, $t1, 0xFF
-j above
+loop: beq $t0, $t1, done
+sll $zero, $zero, 0
+sll $t3, $t0, 2
+addu $t4, $s0, $t3
+lw $t5, 0($t4)
+addu $t2, $t2, $t5
+addiu $t0, $t0, 1
+j loop
+sll $zero, $zero, 0
 
-below: sub $t0, $t1, $t2
-addi $t0 $t1, 1100
+done: sw $t2, 20($s0)
+
+finish: j finish
+sll $zero, $zero, 0
