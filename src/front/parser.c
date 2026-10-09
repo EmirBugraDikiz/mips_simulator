@@ -191,9 +191,6 @@ Err parse_line(app_context *app_context_param, const TokenVec *tv, const char *s
 
     if(!tv || !out_statement || !out_has_label) return ERR_INVALID_ARGUMENT;
 
-    fprintf(stderr, "DEBUG: parse_line called, tv->n=%zu, line=%d\n", tv->n, line_no);
-    fflush(stderr);
-
 
     *out_has_label = 0;
 

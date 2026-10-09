@@ -475,7 +475,6 @@ Err assemble_pass2(app_context *app_context_param, const AsmConfig *cfg, const A
 
     for(size_t i = 0; i < ir->n; i++){
 
-        fprintf(stderr, "DEBUG: for loop iteration for ir statements\n");
 
         const Statement *st = &ir->v[i];
 
